@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -25,6 +26,7 @@ class CustomerRecord(BaseModel):
 class WearPartFinding(BaseModel):
     part_number: str
     description: str
+    vendor: str = ""
     reason: str = ""
 
 
@@ -36,3 +38,18 @@ class DraftEmail(BaseModel):
     text_body: str
     campaign_id: str
     supporting_parts: list[WearPartFinding] = Field(default_factory=list)
+    order_summary: str = ""
+
+
+class CampaignRecord(BaseModel):
+    """Tracks each outbound email in the campaign."""
+
+    customer_id: str = ""
+    customer_name: str
+    contact_email: str = ""
+    campaign_id: str
+    outbound_subject: str = ""
+    parts_included: list[dict[str, str]] = Field(default_factory=list)
+    order_summary: str = ""
+    field_service_mentioned: bool = True
+    status: str = "drafted"  # drafted → sent → replied → quoted

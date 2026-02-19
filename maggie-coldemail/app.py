@@ -1,17 +1,17 @@
-"""Maggie Cold Email service."""
+"""Maggie Cold Email Reactivation service."""
 
 from __future__ import annotations
 
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from campaign_runner import CampaignRunner
-from magnus_client import MagnusClient
 from mailer import SmtpMailer
+from spares_client import SparesClient
 from supabase_client import SupabaseClient
 
 logging.basicConfig(
@@ -21,7 +21,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("maggie-coldemail")
 
-START_TIME = datetime.utcnow()
+START_TIME = datetime.now(timezone.utc)
 
 
 def _env(name: str, default: str = "", required: bool = False) -> str:
@@ -31,14 +31,18 @@ def _env(name: str, default: str = "", required: bool = False) -> str:
     return value
 
 
+# --- Supabase ---
 SUPABASE_URL = _env("SUPABASE_URL", required=True)
 SUPABASE_SERVICE_KEY = _env("SUPABASE_SERVICE_KEY", required=True)
 SUPABASE_CUSTOMER_TABLE = _env("SUPABASE_CUSTOMER_TABLE", "maggie_coldemail_customers")
+SUPABASE_CAMPAIGN_TABLE = _env("SUPABASE_CAMPAIGN_TABLE", "maggie_campaigns")
 SUPABASE_CSV_PUBLIC_URL = _env("SUPABASE_CSV_PUBLIC_URL", "")
 
-MAGNUS_BASE_URL = _env("MAGNUS_BASE_URL", "http://magnus:8401")
-MAGNUS_API_KEY = _env("MAGNUS_API_KEY", "")
+# --- Maggie-spares enrichment ---
+SPARES_BASE_URL = _env("SPARES_BASE_URL", "http://maggie-spares:8402")
+SPARES_API_KEY = _env("SPARES_API_KEY", "")
 
+# --- Email ---
 REVIEWER_EMAIL = _env("REVIEWER_EMAIL", "rclausing@buntingmagnetics.com")
 STATE_FILE = _env("STATE_FILE", "/app/data/state.json")
 
@@ -49,13 +53,18 @@ SMTP_PASS = _env("SMTP_PASS", "")
 SMTP_FROM = _env("SMTP_FROM", required=True)
 SMTP_USE_TLS = _env("SMTP_USE_TLS", "true").lower() in ("1", "true", "yes")
 
+# --- Wire up components ---
 supabase_client = SupabaseClient(
     url=SUPABASE_URL,
     service_key=SUPABASE_SERVICE_KEY,
     table=SUPABASE_CUSTOMER_TABLE,
+    campaign_table=SUPABASE_CAMPAIGN_TABLE,
     csv_public_url=SUPABASE_CSV_PUBLIC_URL,
 )
-magnus_client = MagnusClient(base_url=MAGNUS_BASE_URL, api_key=MAGNUS_API_KEY)
+spares_client = SparesClient(
+    base_url=SPARES_BASE_URL,
+    api_key=SPARES_API_KEY,
+)
 mailer = SmtpMailer(
     host=SMTP_HOST,
     port=SMTP_PORT,
@@ -66,13 +75,13 @@ mailer = SmtpMailer(
 )
 runner = CampaignRunner(
     supabase_client=supabase_client,
-    magnus_client=magnus_client,
+    spares_client=spares_client,
     mailer=mailer,
     reviewer_email=REVIEWER_EMAIL,
     state_path=STATE_FILE,
 )
 
-app = FastAPI(title="Maggie Cold Email", version="1.0.0")
+app = FastAPI(title="Maggie Cold Email Reactivation", version="2.0.0")
 
 
 class RunRequest(BaseModel):
@@ -84,9 +93,11 @@ class RunRequest(BaseModel):
 async def health() -> dict:
     return {
         "agent": "MAGGIE_COLDEMAIL",
+        "version": "2.0.0",
         "status": "ok",
-        "uptime_seconds": (datetime.utcnow() - START_TIME).total_seconds(),
+        "uptime_seconds": (datetime.now(timezone.utc) - START_TIME).total_seconds(),
         "reviewer_email": REVIEWER_EMAIL,
+        "spares_url": SPARES_BASE_URL,
     }
 
 
@@ -97,3 +108,8 @@ async def run_campaign(req: RunRequest) -> dict:
     result = await runner.run(dry_run=req.dry_run, limit=req.limit)
     log.info("Campaign run completed: %s", result)
     return result
+
+
+@app.get("/campaign/stats")
+async def campaign_stats(campaign_id: str | None = None) -> dict:
+    return await supabase_client.get_campaign_stats(campaign_id=campaign_id)

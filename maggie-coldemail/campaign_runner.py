@@ -1,4 +1,4 @@
-"""Campaign orchestration for Maggie cold-email workflow."""
+"""Campaign orchestration for Maggie cold-email reactivation workflow."""
 
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from draft_engine import build_reactivation_draft
-from magnus_client import MagnusClient
 from mailer import SmtpMailer
-from models import CustomerRecord
+from models import CampaignRecord, CustomerRecord
+from spares_client import SparesClient
 from supabase_client import SupabaseClient
 
 log = logging.getLogger("maggie-coldemail.runner")
@@ -21,13 +21,13 @@ class CampaignRunner:
     def __init__(
         self,
         supabase_client: SupabaseClient,
-        magnus_client: MagnusClient,
+        spares_client: SparesClient,
         mailer: SmtpMailer,
         reviewer_email: str,
         state_path: str,
     ) -> None:
         self.supabase_client = supabase_client
-        self.magnus_client = magnus_client
+        self.spares_client = spares_client
         self.mailer = mailer
         self.reviewer_email = reviewer_email
         self.state_path = Path(state_path)
@@ -35,7 +35,7 @@ class CampaignRunner:
 
     async def run(self, dry_run: bool, limit: int) -> dict:
         now = datetime.now(timezone.utc)
-        campaign_id = now.strftime("maggie-coldemail-%Y%m%d-%H%M%S")
+        campaign_id = now.strftime("reactivation-%Y%m%d-%H%M%S")
         state = self._load_state()
         sent_keys: set[str] = set(state.get("sent_keys", []))
 
@@ -45,16 +45,57 @@ class CampaignRunner:
         processed = 0
         skipped_seen = 0
         drafted = 0
+        enriched = 0
+        errors = 0
+
         for customer in eligible:
             dedupe_key = _dedupe_key(customer)
             if dedupe_key in sent_keys:
                 skipped_seen += 1
                 continue
 
-            wear_parts = await self.magnus_client.get_wear_part_candidates(customer)
-            draft = build_reactivation_draft(customer, wear_parts, campaign_id=campaign_id)
+            # Enrich via maggie-spares (real Epicor data)
+            try:
+                wear_parts = await self.spares_client.get_wear_part_candidates(customer)
+                order_summary = await self.spares_client.get_order_summary(customer)
+                if wear_parts or order_summary:
+                    enriched += 1
+            except Exception as exc:
+                log.warning("Enrichment failed for %s: %s", customer.customer_name, exc)
+                wear_parts = []
+                order_summary = ""
+
+            draft = build_reactivation_draft(
+                customer,
+                wear_parts,
+                order_summary=order_summary,
+                campaign_id=campaign_id,
+            )
+
             if not dry_run:
-                self.mailer.send_draft(draft, reviewer_email=self.reviewer_email)
+                try:
+                    self.mailer.send_draft(draft, reviewer_email=self.reviewer_email)
+                except Exception as exc:
+                    log.error("Mail send failed for %s: %s", customer.customer_name, exc)
+                    errors += 1
+                    continue
+
+                # Track in Supabase
+                campaign_record = CampaignRecord(
+                    customer_id=customer.customer_id,
+                    customer_name=customer.customer_name,
+                    contact_email=customer.contact_email,
+                    campaign_id=campaign_id,
+                    outbound_subject=draft.subject,
+                    parts_included=[
+                        {"part_number": p.part_number, "description": p.description, "vendor": p.vendor}
+                        for p in wear_parts
+                    ],
+                    order_summary=order_summary,
+                    status="drafted",
+                )
+                await self.supabase_client.insert_campaign_record(campaign_record)
+
             sent_keys.add(dedupe_key)
             drafted += 1
             processed += 1
@@ -70,7 +111,9 @@ class CampaignRunner:
             "eligible": len(eligible),
             "processed": processed,
             "drafted": drafted,
+            "enriched": enriched,
             "skipped_seen": skipped_seen,
+            "errors": errors,
             "dry_run": dry_run,
         }
 
