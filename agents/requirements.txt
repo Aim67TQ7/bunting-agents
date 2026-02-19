@@ -1,0 +1,25 @@
+# Core Dependencies
+Pillow>=9.0.0
+numpy>=1.20.0
+
+# Document Parsing
+PyPDF2>=3.0.0
+python-docx>=0.8.11
+openpyxl>=3.0.0
+python-pptx>=0.6.21
+beautifulsoup4>=4.11.0
+lxml>=4.9.0
+markdown>=3.4.0
+
+# OCR Dependencies (optional but recommended)
+pytesseract>=0.3.10
+easyocr>=1.6.0
+opencv-python>=4.7.0
+
+# Table Extraction (optional but recommended)
+pandas>=1.5.0
+tabula-py>=2.5.0
+camelot-py[cv]>=0.10.1
+
+# Additional utilities
+python-magic>=0.4.27  # For file type detection

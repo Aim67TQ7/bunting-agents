@@ -1,0 +1,17 @@
+services:
+  maggie-spares:
+    build: .
+    container_name: maggie-spares
+    restart: always
+    ports:
+      - "127.0.0.1:8402:8402"
+    env_file: .env
+    volumes:
+      - ./logs:/app/logs
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; r=httpx.get('http://localhost:8402/health'); assert r.status_code==200"]
+      interval: 60s
+      timeout: 10s
+      retries: 3

@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  contract-intelligence:
+    build: .
+    container_name: contract-intelligence
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PORT=8002
+      - DATA_PATH=/opt/skills-data/contract-intelligence/metrics.db
+    volumes:
+      - contract-data:/opt/skills-data/contract-intelligence
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  contract-data:

@@ -1,0 +1,36 @@
+{
+  "sent_emails": [
+    "aaron.heitbrink@ham.honda.com",
+    "aaron.barkley@emersonresources.com",
+    "aaron.ganick@preddiotech.com",
+    "aaron.barker@ge.com",
+    "aaron.duvernay@amway.com",
+    "aaron.freed@jedson.com",
+    "aaron.garbe@waupacafoundry.com",
+    "aaron.gutowski@ringcontainer.com",
+    "aaron.black@ardentmills.com",
+    "aaron.franck@ssab.com",
+    "aaron.groom@berkshire-automotive.com",
+    "aaron.emler@thermofisher.com",
+    "aaron.anderson@teknorapex.com",
+    "aaron.fields@leggett.com",
+    "aaron.atkins@darigold.com",
+    "aaron.goodwin@mlssystems.com",
+    "aaron.defazio@hunterindustries.com",
+    "aaron.dreher@eammosca.com",
+    "aaron.ackley@hesco.com",
+    "aaron.bandy@wieland.com"
+  ],
+  "total_sent": 20,
+  "total_errors": 0,
+  "runs": [
+    {
+      "timestamp": "2026-02-18T00:00:00",
+      "batch_size": 20,
+      "sent": 20,
+      "errors": 0,
+      "remaining_after": 0,
+      "note": "initial_manual_send"
+    }
+  ]
+}
