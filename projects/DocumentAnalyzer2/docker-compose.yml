@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  contract-analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET:-docker-session-secret}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./reports:/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  uploads:
+  reports:

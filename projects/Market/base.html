@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Market Research App{% endblock %}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .nav { margin-bottom: 20px; }
+    .nav a { margin-right: 10px; }
+    .flash { color: red; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('new_report') }}">Generate Report</a>
+    <a href="{{ url_for('reports') }}">View Reports</a>
+  </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  docket:
+    build: .
+    image: docket_app
+    tty: true
+    volumes:
+      # Mount the docket.json file for persistent storage.
+      - ./docket.json:/app/docket.json

@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500;
+  }
+  
+  .btn-outline {
+    @apply btn border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-primary-500;
+  }
+  
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+  }
+  
+  .input {
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
+  }
+  
+  .input-error {
+    @apply input border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500;
+  }
+  
+  .card {
+    @apply bg-white overflow-hidden shadow rounded-lg;
+  }
+  
+  .card-header {
+    @apply px-4 py-5 sm:px-6 border-b border-gray-200;
+  }
+  
+  .card-body {
+    @apply px-4 py-5 sm:p-6;
+  }
+  
+  .stat-card {
+    @apply card;
+  }
+  
+  .stat-card-content {
+    @apply card-body;
+  }
+  
+  .stat-value {
+    @apply text-2xl font-semibold text-gray-900;
+  }
+  
+  .stat-label {
+    @apply text-sm font-medium text-gray-500 truncate;
+  }
+}
+
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Custom styles for specific components */
+.leaflet-container {
+  @apply rounded-lg;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply rounded-lg;
+}
+
+.leaflet-control-zoom {
+  @apply border-none shadow-lg;
+}
+
+.leaflet-control-zoom a {
+  @apply text-gray-700 hover:text-primary-600;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full hover:bg-gray-400;
+}
+
+/* Mobile responsive tables */
+@media (max-width: 640px) {
+  .mobile-table {
+    @apply block;
+  }
+  
+  .mobile-table thead {
+    @apply hidden;
+  }
+  
+  .mobile-table tbody,
+  .mobile-table tr,
+  .mobile-table td {
+    @apply block;
+  }
+  
+  .mobile-table tr {
+    @apply border border-gray-200 mb-4 rounded-lg p-4;
+  }
+  
+  .mobile-table td {
+    @apply border-none pb-2 text-right;
+  }
+  
+  .mobile-table td:before {
+    content: attr(data-label) ": ";
+    @apply float-left font-semibold text-gray-900;
+  }
+}

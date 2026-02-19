@@ -1,0 +1,11 @@
+.
+├── app.py
+├── reports.json          # (initially empty or not present)
+├── requirements.txt
+├── Dockerfile
+└── templates
+    ├── base.html
+    ├── index.html
+    ├── new_report.html
+    ├── report_detail.html
+    └── reports.html

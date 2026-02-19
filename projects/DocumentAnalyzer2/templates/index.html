@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Contract - Contract Analysis Tool{% endblock %}
+
+{% block content %}
+<div class="row g-0">
+    <div class="col-12">
+        <div class="card rounded-0">
+            <div class="card-header text-center px-4 py-2">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="T3RMS" style="height: 240px;" class="img-fluid">
+            </div>
+            <div class="card-body">
+                <!-- Input Method Toggle -->
+                <div class="mb-4">
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="inputMethod" id="fileMethod" checked>
+                        <label class="btn btn-outline-primary" for="fileMethod">Upload File</label>
+                        
+                        <input type="radio" class="btn-check" name="inputMethod" id="textMethod">
+                        <label class="btn btn-outline-primary" for="textMethod">Paste Text</label>
+                    </div>
+                </div>
+
+                <form id="uploadForm" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                    <!-- File Upload Section -->
+                    <div id="fileSection" class="mb-4">
+                        <label for="file" class="form-label">Select Contract Document</label>
+                        <input type="file" class="form-control" id="file" name="file" 
+                               accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.tif,.tiff,.bmp,.webp">
+                        <div class="form-text">
+                            Supported formats: PDF, DOCX, TXT, MD, PNG, JPG, JPEG, TIF, TIFF, BMP, WEBP
+                            <br>Maximum file size: 16MB
+                        </div>
+                    </div>
+
+                    <!-- Text Paste Section -->
+                    <div id="textSection" class="mb-4" style="display: none;">
+                        <label for="contractText" class="form-label">Paste Contract Text</label>
+                        <textarea class="form-control" id="contractText" name="contract_text" rows="8" 
+                                  placeholder="Paste your contract, purchase order, or quote text here..."></textarea>
+                        <div class="form-text">
+                            Paste the full text of your contract, PO, or quote for analysis
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <span id="submitText">Upload and Analyze</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Progress indicator -->
+                <div id="progressContainer" class="mt-4 text-center" style="display: none;">
+                    <p class="text-muted mb-0">
+                        <small>Processing document and analyzing contract terms...</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

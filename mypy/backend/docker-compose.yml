@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mypy-orchestrator:
+    build: .
+    container_name: mypy-orchestrator
+    ports:
+      - "8010:8010"
+    environment:
+      - VPS_HOST=host.docker.internal
+      - FRONTEND_URL=https://mypy-dashboard.netlify.app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - mypy-network
+
+networks:
+  mypy-network:
+    driver: bridge

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Report Detail - Market Research App{% endblock %}
+{% block content %}
+  <h1>Report for {{ report.industry }} - {{ report.topic }}</h1>
+  <p><strong>Last Modified:</strong> {{ report.datetime }}</p>
+  <h2>Report Text</h2>
+  <pre>{{ report.report }}</pre>
+  <h2>Market Growth Chart</h2>
+  <img src="data:image/png;base64,{{ report.chart }}" alt="Market Growth Chart">
+  <form method="POST" action="{{ url_for('delete_report', report_id=report.id) }}" onsubmit="return confirm('Are you sure you want to delete this report?');">
+    <button type="submit">Delete Report</button>
+  </form>
+{% endblock %}
