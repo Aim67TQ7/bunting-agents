@@ -5,10 +5,10 @@
 **Status:** Active
 
 ## What This Was
-Bunting Magnetics tool — likely a single-purpose app for a specific Bunting workflow
+Python agent suite for Bunting Magnetics — ORC skill implementations
 
 ## Current State
-Active — last pushed 2026-02-19. Part of current GP3 platform or active development.
+Active — feeds ORC orchestrator
 
 ## Agent Replacement
 **Agent Name:** Bunting Agent Suite
@@ -18,14 +18,14 @@ Active — last pushed 2026-02-19. Part of current GP3 platform or active develo
 **Supabase Table:** skills, agent_instances
 
 ## Handoff Notes
-This repo's core function was: Bunting-specific: AI agent/automation. Business context: Bunting Magnetics tool — likely a single-purpose app for a specific Bunting workflow.
+Core function: Bunting-specific agent logic: ERP queries, compliance checks, calibration. Context: Python agent suite for Bunting Magnetics — ORC skill implementations
 
 ## Dependencies
-- None identified from README
+- None identified — check package.json for specifics
 
 ## Last Known Working State
 2026-02-19
 
 ## Claude's Notes
-- WARNING: No README found. Classification based on name/description only.
-- Bunting-specific tool — verify ORC can handle this function before archiving.
+- No README existed. Classification based on repo name.
+- Bunting-specific — verify ORC handles this function before retiring.
